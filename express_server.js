@@ -14,8 +14,12 @@ const urlDatabase = {
 };
 
 const generateRandomString = () => {
-
+  const ranNum = Math.floor(Math.random() * (199999999 - 100000000) + 100000000);
+  const toBase36 = ranNum.toString(36);
+  return toBase36;
 };
+
+console.log(generateRandomString());
 
 app.get("/", (req, res) => {
   res.send("Hello!");
