@@ -13,6 +13,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const generateRandomString = () => {
+
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -28,6 +32,11 @@ app.get('/hello', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
+});
+
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('Okay.');
 });
 
 app.get('/urls/new', (req, res) => {
