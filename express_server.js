@@ -92,8 +92,13 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = { userId: findUserInfo(req.cookies["user_id"]) };
-  res.render('urls_new', templateVars);
+  const userId = findUserInfo(req.cookies["user_id"]);
+  if (userId === undefined) {
+    res.redirect('/login');
+  } else {
+    const templateVars = { userId: userId };
+    res.render('urls_new', templateVars);
+  }
 });
 
 app.post('/urls', (req, res) => {
