@@ -70,23 +70,24 @@ app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
+// URLS //
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase, userId: findUserInfo(req.cookies["user_id"]) };
   res.render('urls_index', templateVars);
 });
 
-app.post('/urls/:shortURL/delete', (req, res) => {
+app.post('/urls/:shortURL/delete', (req, res) => { // DELETE LINK FROM DATABASE
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
-app.post('/urls/:newURL', (req, res) => {
+app.post('/urls/:newURL', (req, res) => { // UPDATE LINK AFTER EDIT
   const shortURL = Object.keys(req.body)[0];
-  urlDatabase[shortURL] = req.body[shortURL];
+  urlDatabase[shortURL].longURL = req.body[shortURL];
   res.redirect('/urls');
 });
 
-app.post('/urls', (req, res) => {
+app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userId: req.cookies["user_id"] };
   res.redirect(`urls/${shortURL}`);
@@ -103,7 +104,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  res.redirect(`/urls`);
+  res.redirect('/urls');
 });
 
 app.get('/urls/:shortURL', (req, res) => {
