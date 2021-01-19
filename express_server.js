@@ -14,7 +14,7 @@ app.set('view engine', 'ejs');
 // DATABASES //
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: 'user1x1gd1' },
-  "b2xabc": { longURL: "http://www.lighthouselabs.ca", userId: 'user1a1gd1' },
+  "b2xabc": { longURL: "http://www.lighthouselabs.ca", userId: 'DIFFUSER' },
   "9sm5xK": { longURL: "http://www.google.com", userId: 'user1x1gd1' }
 };
 
@@ -61,6 +61,20 @@ const passwordChecker = (reqEmail, reqPass, callback) => {
   });
 };
 
+// CREATE URL OBJECT FOR TEMPLATE //
+const urlsForUser = (id) => {
+  let validURLS = {};
+  if (id !== undefined) {
+    for (const shortURL in urlDatabase) {
+      if (urlDatabase[shortURL].userId === id.id) {
+        validURLS[shortURL] = { longURL: urlDatabase[shortURL].longURL };
+      }
+    }
+    return validURLS;
+  }
+  return undefined;
+};
+
 // ROUTING //
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -71,8 +85,10 @@ app.get('/urls.json', (req, res) => {
 });
 
 // URLS //
-app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, userId: findUserInfo(req.cookies["user_id"]) };
+app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
+  const userId = findUserInfo(req.cookies["user_id"]);
+  const templateVars = { urls: urlsForUser(userId), userId: userId };
+  console.log(templateVars.urls);
   res.render('urls_index', templateVars);
 });
 

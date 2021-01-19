@@ -16,43 +16,51 @@
     <%- include('partials/_header') %>
   </header>
   <main style="margin: 1em;">
-    <h3>My URLs</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Short URL</th>
-          <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if(userId!==undefined) { %>
+    <% if(urls !==undefined && userId===undefined) { %>
+      <h3>My URLs</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Short URL</th>
+            <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
           <% for(let url in urls) { %>
-            <% if(urls[url].userId===userId.id) { %>
-              <tr>
-                <td>
-                  <%= url %>
-                </td>
-                <td>
-                  <%= urls[url].longURL %>
-                </td>
-                <td>
-                  <form method="GET" action="/urls/<%= url %>">
-                    <button type='submit' class="btn btn-outline-primary">Edit</button>
-                  </form>
-                </td>
-                <td>
-                  <form method="POST" action='/urls/<%= url %>/delete'>
-                    <button class="btn btn-outline-danger">Delete</button>
-                  </form>
-                </td>
-              </tr>
-              <% } %>
-                <% } %>
-                  <% } %>
-      </tbody>
-    </table>
+            <tr>
+              <td>
+                <%= url %>
+              </td>
+              <td>
+                <%= urls[url].longURL %>
+              </td>
+              <td>
+                <form method="GET" action="/urls/<%= url %>">
+                  <button type='submit' class="btn btn-outline-primary">Edit</button>
+                </form>
+              </td>
+              <td>
+                <form method="POST" action='/urls/<%= url %>/delete'>
+                  <button class="btn btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+            <% } %>
+        </tbody>
+      </table>
+      <% } else if (userId !==undefined) {%>
+        <div class="d-flex justify-content-center alert alert-info" role="alert" style='margin: 2em;'>
+          <h3 style="text-align: center;">You do not have any shortened links yet. Make one <a href="/urls/new"
+              class="alert-link">Here</a>!</h3>
+        </div>
+        <% } else {%>
+          <div class="d-flex justify-content-center alert alert-info" role="alert" style='margin: 2em;'>
+            <h3 style="text-align: center;">Please <a href="/login" class="alert-link">Log In </a>or <a href="/register"
+                class="alert-link">Register</a>!</h3>
+          </div>
+          <% } %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
