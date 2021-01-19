@@ -30,13 +30,21 @@ const generateRandomString = () => {
 
 // FIND USER //
 const findUserInfo = (cookieVal) => {
-  console.log('cookie func', cookieVal);
-  console.log(users);
   if (Object.keys(users).includes(cookieVal)) {
     return users[cookieVal];
   } else {
     return undefined;
   }
+};
+
+// EMAIL LOOKUP //
+const emailLookup = (reqEmail) => {
+  for (const id in users) {
+    if (users[id].email === reqEmail) {
+      return true;
+    }
+  }
+  return false;
 };
 
 app.get("/", (req, res) => {
@@ -49,8 +57,6 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase, username: findUserInfo(req.cookies["username"]) };
-  console.log(req.cookies["username"]);
-  console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
@@ -112,10 +118,16 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+  const reqEmail = req.body.email;
+  const reqPass = req.body.password;
+  if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail)) {
+    res.status(400);
+    return res.send('400');
+  }
   const ranUsername = `user${generateRandomString()}`;
-  users[ranUsername] = { id: ranUsername, email: req.body.email, password: req.body.password };
-  res.cookie('username', ranUsername);
+  users[ranUsername] = { id: ranUsername, email: reqEmail, password: reqPass };
   console.log(users);
+  res.cookie('username', ranUsername);
   res.redirect('/urls');
 });
 
