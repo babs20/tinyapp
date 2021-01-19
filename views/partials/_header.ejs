@@ -1,26 +1,29 @@
-<header>
-  <nav class="navbar navbar-expand-md navbar-dark bg-success">
-    <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="d-inline-flex collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (username !==undefined) { %>
-          <form class="d-inline-flex justify-content-end form-inline" action="/login" method="POST">
-            <input type="text" class="form-control" name="username" placeholder="username" style="margin-left: 1rem">
-            <button type='submit' class="btn btn btn-primary" style="margin-left: 1rem">Submit</button>
-          </form>
-          <% } else{ %>
-            <form class="d-inline-flex justify-content-end form-inline" action="/login" method="POST">
-              <input type="text" class="form-control" name="username" placeholder="username" style="margin-left: 1rem">
-              <button type='submit' class="btn btn btn-primary" style="margin-left: 1rem">Submit</button>
-            </form>
-            <% } %>
-      </div>
+<nav class="navbar navbar-expand-md navbar-dark bg-success">
+  <a class="navbar-brand" href="/urls">TinyApp</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+    aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="justify-content: space-between">
+    <div class="navbar-nav">
+      <a class=" nav-item nav-link" href="/urls">My URLs</a>
+      <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
     </div>
-  </nav>
-</header>
+    <div class="navbar-nav">
+      <% if (username===undefined) { %>
+        <form class="form-inline" action="/login" method="POST">
+          <input type="text" class="form-control" name="username" placeholder="Username" style="margin-right: 0.5rem">
+          <button type='submit' class="btn btn-outline-dark" style="margin-right: 1rem">Submit</button>
+        </form>
+        <% } else{ %>
+          <form class="form-inline" action="/logout" method="POST">
+            <span class="navbar-text"
+              style="align-self: center; margin-right: 1rem; color: #333333; font-size: larger;">
+              Logged In As: <%= username %>
+            </span>
+            <button type='submit' class="btn btn-outline-dark" style="margin-right: 1rem">Log Out</button>
+          </form>
+          <% } %>
+    </div>
+  </div>
+</nav>
