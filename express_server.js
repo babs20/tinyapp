@@ -95,13 +95,18 @@ app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => { // DELETE LINK FROM DATABASE
-  delete urlDatabase[req.params.shortURL];
+  console.log(req.params.shortURL);
+  if (req.cookies["user_id"] === urlDatabase[req.params.shortURL].userId) {
+    delete urlDatabase[req.params.shortURL];
+  }
   res.redirect('/urls');
 });
 
 app.post('/urls/:newURL', (req, res) => { // UPDATE LINK AFTER EDIT
-  const shortURL = Object.keys(req.body)[0];
-  urlDatabase[shortURL].longURL = req.body[shortURL];
+  const newURL = Object.keys(req.body)[0];
+  if (req.cookies["user_id"] === urlDatabase[newURL].userId) {
+    urlDatabase[newURL].longURL = req.body[newURL];
+  }
   res.redirect('/urls');
 });
 
