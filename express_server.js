@@ -18,7 +18,8 @@ const urlDatabase = {
 };
 
 const users = {
-
+  user1x1gd1:
+    { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
 };
 
 // RANDOM STRING GENERATOR //
@@ -38,14 +39,28 @@ const findUserInfo = (cookieVal) => {
 };
 
 // EMAIL LOOKUP //
-const emailLookup = (reqEmail) => {
+const emailLookup = (reqEmail, callback) => {
   for (const id in users) {
     if (users[id].email === reqEmail) {
-      return true;
+      return callback(true, users[id]);
     }
   }
   return false;
 };
+
+// PASSWORD CHECKER //
+const passwordChecker = (reqEmail, reqPass, callback) => {
+  emailLookup(reqEmail, (bool, id) => {
+    if (bool && id.password === reqPass) {
+      console.log('passing here');
+      return callback(true, id.id);
+    } else {
+      return callback(false, null);
+    }
+  });
+};
+
+//////////
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -107,6 +122,23 @@ app.get('/urls/:shortURL', (req, res) => {
 //   res.redirect('/urls');
 // });
 
+app.post('/login', (req, res) => {
+  const reqEmail = req.body.email;
+  const reqPass = req.body.password;
+
+  passwordChecker(reqEmail, reqPass, (bool, id) => {
+    if (bool) {
+      res.cookie('username', id);
+      return res.redirect('/urls');
+    } else {
+      console.log('Password Fail');
+      res.status(400);
+      return res.send('400');
+    }
+  });
+
+});
+
 app.get('/login', (req, res) => {
   const templateVars = { username: findUserInfo(req.cookies["username"]) };
   res.render('urls_login', templateVars);
@@ -129,7 +161,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
-  if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail)) {
+  if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail, (bool, id) => bool)) {
     res.status(400);
     return res.send('400');
   }
