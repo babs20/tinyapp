@@ -100,10 +100,19 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
+// LOGIN //
+
+// app.post('/login', (req, res) => {
+//   res.cookie('username', req.body.username);
+//   res.redirect('/urls');
+// });
+
+app.get('/login', (req, res) => {
+  const templateVars = { username: findUserInfo(req.cookies["username"]) };
+  res.render('urls_login', templateVars);
 });
+
+// LOGOUT //
 
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
