@@ -70,9 +70,12 @@ const urlsForUser = (id) => {
         validURLS[shortURL] = { longURL: urlDatabase[shortURL].longURL };
       }
     }
+  }
+  if (Object.keys(validURLS).length === 0) {
+    return undefined;
+  } else {
     return validURLS;
   }
-  return undefined;
 };
 
 // ROUTING //
@@ -88,7 +91,6 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
   const userId = findUserInfo(req.cookies["user_id"]);
   const templateVars = { urls: urlsForUser(userId), userId: userId };
-  console.log(templateVars.urls);
   res.render('urls_index', templateVars);
 });
 
@@ -123,7 +125,7 @@ app.post('/urls', (req, res) => {
   res.redirect('/urls');
 });
 
-app.get('/urls/:shortURL', (req, res) => {
+app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
