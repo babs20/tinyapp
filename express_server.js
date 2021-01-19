@@ -58,13 +58,18 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = { longURL: urlDatabase[req.params.shortURL] };
+  const longURL = { longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], };
   res.redirect(longURL.longURL);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], };
   res.render('urls_show', templateVars);
+});
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {

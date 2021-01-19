@@ -5,10 +5,14 @@
       aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="d-inline-flex collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <form class="d-inline-flex justify-content-end form-inline" action="/login" method="POST">
+          <input type="text" class="form-control" name="username" placeholder="username" style="margin-left: 1rem">
+          <button type='submit' class="btn btn btn-primary" style="margin-left: 1rem">Submit</button>
+        </form>
       </div>
     </div>
   </nav>
