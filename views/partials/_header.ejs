@@ -9,10 +9,17 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <form class="d-inline-flex justify-content-end form-inline" action="/login" method="POST">
-          <input type="text" class="form-control" name="username" placeholder="username" style="margin-left: 1rem">
-          <button type='submit' class="btn btn btn-primary" style="margin-left: 1rem">Submit</button>
-        </form>
+        <% if (username !==undefined) { %>
+          <form class="d-inline-flex justify-content-end form-inline" action="/login" method="POST">
+            <input type="text" class="form-control" name="username" placeholder="username" style="margin-left: 1rem">
+            <button type='submit' class="btn btn btn-primary" style="margin-left: 1rem">Submit</button>
+          </form>
+          <% } else{ %>
+            <form class="d-inline-flex justify-content-end form-inline" action="/login" method="POST">
+              <input type="text" class="form-control" name="username" placeholder="username" style="margin-left: 1rem">
+              <button type='submit' class="btn btn btn-primary" style="margin-left: 1rem">Submit</button>
+            </form>
+            <% } %>
       </div>
     </div>
   </nav>
