@@ -127,6 +127,7 @@ app.post('/urls', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
   const templateVars = {
+    urls: urlDatabase,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     userId: findUserInfo(req.cookies["user_id"])
