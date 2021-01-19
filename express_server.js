@@ -1,20 +1,27 @@
 'use strict';
-
+// IMPORT MODULES //
 const express = require("express");
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+
+// SETTING UP APP
 const app = express();
 const PORT = 8080; // default port 8080
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 
+// DATABASES //
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+
+};
+
+// RANDOM STRING GENERATOR //
 const generateRandomString = () => {
   const ranNum = Math.floor(Math.random() * (199999999 - 100000000) + 100000000);
   const toBase36 = ranNum.toString(36);
@@ -85,6 +92,13 @@ app.post('/logout', (req, res) => {
 app.get('/register', (req, res) => {
   const templateVars = { username: req.cookies["username"] };
   res.render('urls_register', templateVars);
+});
+
+app.post('/register', (req, res) => {
+  const ranUsername = `user${generateRandomString()}`;
+  users[ranUsername] = { id: ranUsername, email: req.body.email, password: req.body.password };
+  console.log(users);
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
