@@ -28,6 +28,17 @@ const generateRandomString = () => {
   return toBase36;
 };
 
+// FIND USER //
+const findUserInfo = (cookieVal) => {
+  console.log('cookie func', cookieVal);
+  console.log(users);
+  if (Object.keys(users).includes(cookieVal)) {
+    return users[cookieVal];
+  } else {
+    return undefined;
+  }
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -37,7 +48,9 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  const templateVars = { urls: urlDatabase, username: findUserInfo(req.cookies["username"]) };
+  console.log(req.cookies["username"]);
+  console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
@@ -59,7 +72,7 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { username: findUserInfo(req.cookies["username"]) };
   res.render('urls_new', templateVars);
 });
 
@@ -68,12 +81,16 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = { longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  const longURL = { longURL: urlDatabase[req.params.shortURL], username: findUserInfo(req.cookies["username"]) };
   res.redirect(longURL.longURL);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: findUserInfo(req.cookies["username"])
+  };
   res.render('urls_show', templateVars);
 });
 
@@ -87,20 +104,22 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-// REGISTER
+// REGISTER //
 
 app.get('/register', (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { username: findUserInfo(req.cookies["username"]) };
   res.render('urls_register', templateVars);
 });
 
 app.post('/register', (req, res) => {
   const ranUsername = `user${generateRandomString()}`;
   users[ranUsername] = { id: ranUsername, email: req.body.email, password: req.body.password };
+  res.cookie('username', ranUsername);
   console.log(users);
   res.redirect('/urls');
 });
 
+// PORT LISTEN //
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
