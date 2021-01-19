@@ -51,7 +51,7 @@ const emailLookup = (reqEmail, callback) => {
 // PASSWORD CHECKER //
 const passwordChecker = (reqEmail, reqPass, callback) => {
   emailLookup(reqEmail, (bool, id) => {
-    if (bool && id.password === reqPass) {
+    if (bool && id.password === reqPass) { // both have matches
       console.log('passing here');
       return callback(true, id.id);
     } else {
@@ -60,8 +60,7 @@ const passwordChecker = (reqEmail, reqPass, callback) => {
   });
 };
 
-//////////
-
+// ROUTING //
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -71,7 +70,7 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: findUserInfo(req.cookies["username"]) };
+  const templateVars = { urls: urlDatabase, userId: findUserInfo(req.cookies["user_id"]) };
   res.render('urls_index', templateVars);
 });
 
@@ -93,7 +92,7 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = { username: findUserInfo(req.cookies["username"]) };
+  const templateVars = { userId: findUserInfo(req.cookies["user_id"]) };
   res.render('urls_new', templateVars);
 });
 
@@ -102,7 +101,7 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = { longURL: urlDatabase[req.params.shortURL], username: findUserInfo(req.cookies["username"]) };
+  const longURL = { longURL: urlDatabase[req.params.shortURL], userId: findUserInfo(req.cookies["user_id"]) };
   res.redirect(longURL.longURL);
 });
 
@@ -110,51 +109,43 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: findUserInfo(req.cookies["username"])
+    userId: findUserInfo(req.cookies["user_id"])
   };
   res.render('urls_show', templateVars);
 });
 
 // LOGIN //
-
-// app.post('/login', (req, res) => {
-//   res.cookie('username', req.body.username);
-//   res.redirect('/urls');
-// });
-
 app.post('/login', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
 
   passwordChecker(reqEmail, reqPass, (bool, id) => {
     if (bool) {
-      res.cookie('username', id);
+      res.cookie('user_id', id);
       return res.redirect('/urls');
     } else {
       console.log('Password Fail');
-      res.status(400);
-      return res.send('400');
+      res.status(403);
+      return res.send('403');
     }
   });
 
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { username: findUserInfo(req.cookies["username"]) };
+  const templateVars = { userId: findUserInfo(req.cookies["user_id"]) };
   res.render('urls_login', templateVars);
 });
 
 // LOGOUT //
-
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
 // REGISTER //
-
 app.get('/register', (req, res) => {
-  const templateVars = { username: findUserInfo(req.cookies["username"]) };
+  const templateVars = { userId: findUserInfo(req.cookies["user_id"]) };
   res.render('urls_register', templateVars);
 });
 
@@ -165,10 +156,10 @@ app.post('/register', (req, res) => {
     res.status(400);
     return res.send('400');
   }
-  const ranUsername = `user${generateRandomString()}`;
-  users[ranUsername] = { id: ranUsername, email: reqEmail, password: reqPass };
+  const ranUserId = `user${generateRandomString()}`;
+  users[ranUserId] = { id: ranUserId, email: reqEmail, password: reqPass };
   console.log(users);
-  res.cookie('username', ranUsername);
+  res.cookie('user_id', ranUserId);
   res.redirect('/urls');
 });
 
