@@ -39,7 +39,7 @@ const generateRandomString = () => {
 };
 
 // FIND USER //
-const findUserInfo = (cookieVal) => {
+const findUserInfo = (cookieVal, users) => {
   if (Object.keys(users).includes(cookieVal)) {
     return users[cookieVal];
   } else {
@@ -48,7 +48,7 @@ const findUserInfo = (cookieVal) => {
 };
 
 // EMAIL LOOKUP //
-const emailLookup = (reqEmail, db, callback) => {
+const emailLookup = (reqEmail, users, callback) => { // return bool and id in callback
   for (const id in users) {
     if (users[id].email === reqEmail) {
       return callback(true, users[id]);
@@ -97,8 +97,8 @@ app.get('/urls.json', (req, res) => {
 
 // URLS //
 app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
-  console.log(req.session.user_id);
-  const userId = findUserInfo(req.session.user_id);
+  // console.log(req.session.user_id);
+  const userId = findUserInfo(req.session.user_id, users);
   const templateVars = { urls: urlsForUser(userId), userId: userId };
   res.render('urls_index', templateVars);
 });
@@ -127,7 +127,7 @@ app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
 });
 
 app.get('/urls/new', (req, res) => {
-  const userId = findUserInfo(req.session.user_id);
+  const userId = findUserInfo(req.session.user_id, users);
   if (userId === undefined) {
     res.redirect('/login');
   } else {
@@ -145,7 +145,7 @@ app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
     urls: urlDatabase,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    userId: findUserInfo(req.session.user_id)
+    userId: findUserInfo(req.session.user_id, users)
   };
   res.render('urls_show', templateVars);
 });
@@ -163,11 +163,11 @@ app.post('/login', (req, res) => {
 
   passwordChecker(reqEmail, reqPass, users, (bool, id) => {
     if (bool) {
-      console.log('here');
+      // console.log('here');
       req.session.user_id = id;
       return res.redirect('/urls');
     } else {
-      console.log('Password Fail');
+      //console.log('Password Fail');
       res.status(403);
       return res.send('403');
     }
@@ -176,7 +176,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { userId: findUserInfo(req.session.user_id) };
+  const templateVars = { userId: findUserInfo(req.session.user_id, users) };
   res.render('urls_login', templateVars);
 });
 
@@ -189,7 +189,7 @@ app.post('/logout', (req, res) => {
 
 // REGISTER //
 app.get('/register', (req, res) => {
-  const templateVars = { userId: findUserInfo(req.session.user_id) };
+  const templateVars = { userId: findUserInfo(req.session.user_id, users) };
   res.render('urls_register', templateVars);
 });
 
