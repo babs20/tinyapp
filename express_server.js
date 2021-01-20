@@ -26,8 +26,8 @@ const urlDatabase = {
 };
 
 const users = {
-  // user1x1gd1:
-  //   { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
+  user1x1gd1:
+    { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
 };
 
 /// ROUTING ///
@@ -80,7 +80,7 @@ app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
   res.redirect(`urls/${shortURL}`);
 });
 
-app.get('/urls/new', (req, res) => { //
+app.get('/urls/new', (req, res) => { // CREATE NEW SHORT URL
   const userId = findUserId(req.session.user_id, users);
   if (userId === undefined) {
     res.redirect('/login');
@@ -116,11 +116,9 @@ app.post('/login', (req, res) => {
 
   passwordChecker(reqEmail, reqPass, users, (bool, id) => {
     if (bool) {
-      // console.log('here');
       req.session.user_id = id;
       return res.redirect('/urls');
     } else {
-      // console.log('Password Fail');
       const templateVars = { userId };
       return res.render('urls_error', templateVars);
     }
@@ -133,13 +131,6 @@ app.get('/login', (req, res) => {
   }
   const templateVars = { userId: findUserId(req.session.user_id, users) };
   res.render('urls_login', templateVars);
-});
-
-// LOGOUT //
-app.post('/logout', (req, res) => {
-  req.session = null;
-  res.clearCookie('user_id');
-  res.redirect('/urls');
 });
 
 // REGISTER //
@@ -156,13 +147,18 @@ app.post('/register', (req, res) => {
   const reqPass = req.body.password;
   const hashedPass = bcrypt.hashSync(reqPass, 10);
   if ((reqEmail === '' || reqPass === '') || getUserByEmail(reqEmail, users, (bool, id) => bool)) {
-    res.status(400);
-    return res.send('400');
+    const templateVars = { userId: findUserId(req.session.user_id, users) };
+    return res.render('urls_error', templateVars);
   }
   const ranUserId = `user${generateRandomString()}`;
   users[ranUserId] = { id: ranUserId, email: reqEmail, password: hashedPass };
-  // console.log(users);
   req.session.user_id = ranUserId;
+  res.redirect('/urls');
+});
+
+// LOGOUT //
+app.post('/logout', (req, res) => {
+  req.session = null;
   res.redirect('/urls');
 });
 
