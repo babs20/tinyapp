@@ -58,7 +58,7 @@ app.delete('/urls/:shortURL', (req, res) => { // DELETE LINK FROM DATABASE
   res.redirect('/urls');
 });
 
-app.post('/urls/:id', (req, res) => { // UPDATE LINK AFTER EDIT
+app.put('/urls/:id', (req, res) => { // UPDATE LINK AFTER EDIT
   const id = Object.keys(req.body)[0];
   if (!urlDatabase[id]) {
     return res.redirect('/login');
