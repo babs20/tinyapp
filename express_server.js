@@ -61,23 +61,26 @@ app.post('/urls/:shortURL/delete', (req, res) => { // DELETE LINK FROM DATABASE
   res.redirect('/urls');
 });
 
-app.post('/urls/:newURL', (req, res) => { // UPDATE LINK AFTER EDIT
-  const newURL = Object.keys(req.body)[0];
-  if (req.session.user_id === urlDatabase[newURL].userId) {
-    urlDatabase[newURL].longURL = req.body[newURL];
+app.post('/urls/:id', (req, res) => { // UPDATE LINK AFTER EDIT
+  const id = Object.keys(req.body)[0];
+  console.log(req);
+  if (!urlDatabase[id]) {
+    return res.redirect('/login');
+  } else if (req.session.user_id !== urlDatabase[id].userId) {
+    return res.redirect(`/urls/${id}`);
+  } else {
+    urlDatabase[id].longURL = req.body[id];
+    return res.redirect('/urls');
   }
-  // console.log('after update: ', urlDatabase);
-  res.redirect('/urls');
 });
 
 app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userId: req.session.user_id };
-  // console.log(urlDatabase);
   res.redirect(`urls/${shortURL}`);
 });
 
-app.get('/urls/new', (req, res) => {
+app.get('/urls/new', (req, res) => { //
   const userId = findUserId(req.session.user_id, users);
   if (userId === undefined) {
     res.redirect('/login');
@@ -87,12 +90,12 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
-app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
-  let linkExists = Object.keys(urlDatabase).includes(req.params.shortURL) ? true : false;
+app.get('/urls/:id', (req, res) => { // URL SHOW PAGE
+  let linkExists = Object.keys(urlDatabase).includes(req.params.id) ? true : false;
   const templateVars = {
     urls: urlDatabase,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL] ? urlDatabase[req.params.shortURL].longURL : null,
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id] ? urlDatabase[req.params.id].longURL : null,
     userId: findUserId(req.session.user_id, users),
     linkExists
   };
@@ -107,6 +110,7 @@ app.get('/u/:id', (req, res) => {
 
 // LOGIN //
 app.post('/login', (req, res) => {
+  const userId = findUserId(req.session.user_id, users);
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
 
@@ -116,15 +120,17 @@ app.post('/login', (req, res) => {
       req.session.user_id = id;
       return res.redirect('/urls');
     } else {
-      //console.log('Password Fail');
-      res.status(403);
-      return res.send('403');
+      // console.log('Password Fail');
+      const templateVars = { userId };
+      return res.render('urls_error', templateVars);
     }
   });
-
 });
 
 app.get('/login', (req, res) => {
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
   const templateVars = { userId: findUserId(req.session.user_id, users) };
   res.render('urls_login', templateVars);
 });
@@ -138,6 +144,9 @@ app.post('/logout', (req, res) => {
 
 // REGISTER //
 app.get('/register', (req, res) => {
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
   const templateVars = { userId: findUserId(req.session.user_id, users) };
   res.render('urls_register', templateVars);
 });

@@ -7,7 +7,7 @@ const getUserByEmail = (reqEmail, users, callback) => { // return bool and id in
       return callback(true, users[id]);
     }
   }
-  return false;
+  return callback(false, null);
 };
 
 // FIND USER //
