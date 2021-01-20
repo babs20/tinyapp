@@ -9,7 +9,7 @@ const { getUserByEmail, findUserId, passwordChecker, urlsForUser, generateRandom
 
 // SETTING UP APP
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
@@ -25,30 +25,21 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userId: 'user1x1gd1' }
 };
 
-const users = {
-  user1x1gd1:
-    { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
-};
+const users = {};
 
 /// ROUTING ///
 
 // ROOT //
 app.get("/", (req, res) => { // Redirect to URLS or Login depending on user login
-  const userId = findUserId(req.session.user_id, users);
-  if (userId === undefined) {
+  if (!req.session.user_id) {
     res.redirect('/login');
   } else {
     res.redirect('/urls');
   }
 });
 
-// app.get('/urls.json', (req, res) => {
-//   res.json(urlDatabase);
-// });
-
 // URLS //
 app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
-  // console.log(req.session.user_id);
   const userId = findUserId(req.session.user_id, users);
   const templateVars = { urls: urlsForUser(userId, urlDatabase), userId: userId };
   res.render('urls_index', templateVars);
@@ -63,7 +54,6 @@ app.post('/urls/:shortURL/delete', (req, res) => { // DELETE LINK FROM DATABASE
 
 app.post('/urls/:id', (req, res) => { // UPDATE LINK AFTER EDIT
   const id = Object.keys(req.body)[0];
-  console.log(req);
   if (!urlDatabase[id]) {
     return res.redirect('/login');
   } else if (req.session.user_id !== urlDatabase[id].userId) {
@@ -146,7 +136,7 @@ app.post('/register', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
   const hashedPass = bcrypt.hashSync(reqPass, 10);
-  if ((reqEmail === '' || reqPass === '') || getUserByEmail(reqEmail, users, (bool, id) => bool)) {
+  if ((reqEmail === '' || reqPass === '') || getUserByEmail(reqEmail, users, (bool) => bool)) {
     const templateVars = { userId: findUserId(req.session.user_id, users) };
     return res.render('urls_error', templateVars);
   }
