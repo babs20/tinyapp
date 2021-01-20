@@ -22,7 +22,7 @@ const findUserId = (cookieVal, users) => {
 // PASSWORD CHECKER //
 const passwordChecker = (reqEmail, reqPass, db, callback) => {
   getUserByEmail(reqEmail, db, (bool, id) => {
-    if (bool && bcrypt.compareSync(reqPass, id.password)) { // both have matches
+    if (bool && bcrypt.compareSync(reqPass, id.password)) {
       // console.log('passing here');
       return callback(true, id.id);
     } else {

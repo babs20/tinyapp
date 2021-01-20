@@ -20,7 +20,7 @@ app.use(cookieSession({
 }));
 app.set('view engine', 'ejs');
 
-// DATABASES //
+/// DATABASES ///
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: 'user1x1gd1' },
   "b2xabc": { longURL: "http://www.lighthouselabs.ca", userId: 'DIFFUSER' },
@@ -31,61 +31,6 @@ const users = {
   // user1x1gd1:
   //   { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
 };
-
-// // RANDOM STRING GENERATOR //
-// const generateRandomString = () => {
-//   const ranNum = Math.floor(Math.random() * (199999999 - 100000000) + 100000000);
-//   const toBase36 = ranNum.toString(36);
-//   return toBase36;
-// };
-
-// // FIND USER //
-// const findUserId = (cookieVal, users) => {
-//   if (Object.keys(users).includes(cookieVal)) {
-//     return users[cookieVal];
-//   } else {
-//     return undefined;
-//   }
-// };
-
-// // EMAIL LOOKUP //
-// const getUserByEmail = (reqEmail, users, callback) => { // return bool and id in callback
-//   for (const id in users) {
-//     if (users[id].email === reqEmail) {
-//       return callback(true, users[id]);
-//     }
-//   }
-//   return false;
-// };
-
-// // PASSWORD CHECKER //
-// const passwordChecker = (reqEmail, reqPass, db, callback) => {
-//   getUserByEmail(reqEmail, db, (bool, id) => {
-//     if (bool && bcrypt.compareSync(reqPass, id.password)) { // both have matches
-//       // console.log('passing here');
-//       return callback(true, id.id);
-//     } else {
-//       return callback(false, null);
-//     }
-//   });
-// };
-
-// // CREATE URL OBJECT FOR TEMPLATE //
-// const urlsForUser = (id) => {
-//   let validURLS = {};
-//   if (id !== undefined) {
-//     for (const shortURL in urlDatabase) {
-//       if (urlDatabase[shortURL].userId === id.id) {
-//         validURLS[shortURL] = { longURL: urlDatabase[shortURL].longURL };
-//       }
-//     }
-//   }
-//   if (Object.keys(validURLS).length === 0) {
-//     return undefined;
-//   } else {
-//     return validURLS;
-//   }
-// };
 
 /// ROUTING ///
 app.get("/", (req, res) => {
@@ -116,14 +61,14 @@ app.post('/urls/:newURL', (req, res) => { // UPDATE LINK AFTER EDIT
   if (req.session.user_id === urlDatabase[newURL].userId) {
     urlDatabase[newURL].longURL = req.body[newURL];
   }
-  console.log('after update: ', urlDatabase);
+  // console.log('after update: ', urlDatabase);
   res.redirect('/urls');
 });
 
 app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userId: req.session.user_id };
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   res.redirect(`urls/${shortURL}`);
 });
 
