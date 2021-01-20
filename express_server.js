@@ -5,6 +5,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 const { getUserByEmail, findUserId, passwordChecker, urlsForUser, generateRandomString } = require('./helpers');
 
 // SETTING UP APP
@@ -16,6 +17,7 @@ app.use(cookieSession({
   keys: ['some-value'],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 
 /// DATABASES ///
