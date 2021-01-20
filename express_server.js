@@ -87,37 +87,22 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
-app.post('/urls', (req, res) => {
-  res.redirect('/urls');
-});
-
 app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
-  const userId = findUserId(req.session.user_id, users);
-  if (!Object.keys(urlDatabase).includes(req.params.shortURL)) {
-    // res.send(404);
-    const templateVars = { error: '404', userId };
-    return res.render('urls_error', templateVars);
-  } else {
-    const templateVars = {
-      urls: urlDatabase,
-      shortURL: req.params.shortURL,
-      longURL: urlDatabase[req.params.shortURL].longURL,
-      userId: findUserId(req.session.user_id, users)
-    };
-    res.render('urls_show', templateVars);
-  }
+  let linkExists = Object.keys(urlDatabase).includes(req.params.shortURL) ? true : false;
+  const templateVars = {
+    urls: urlDatabase,
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL] ? urlDatabase[req.params.shortURL].longURL : null,
+    userId: findUserId(req.session.user_id, users),
+    linkExists
+  };
+  res.render('urls_show', templateVars);
 });
 
 // REDIRECT SHORTEN LINKS //
-app.get('/u/:shortURL', (req, res) => {
-  const shortURL = req.params.shortURL;
-  if (!Object.keys(urlDatabase).includes(shortURL)) {
-    res.send(404);
-    const templateVars = { error: '404' };
-    return res.render('urls_error', templateVars);
-  } else {
-    res.redirect(urlDatabase[shortURL].longURL);
-  }
+app.get('/u/:id', (req, res) => {
+  const shortURL = req.params.id;
+  urlDatabase[shortURL] ? res.redirect(urlDatabase[shortURL].longURL) : res.redirect(`/urls/${shortURL}`);
 });
 
 // LOGIN //
