@@ -5,6 +5,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const { getUserByEmail, findUserId, passwordChecker, urlsForUser, generateRandomString } = require('./helpers');
 
 // SETTING UP APP
 const app = express();
@@ -31,62 +32,62 @@ const users = {
   //   { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
 };
 
-// RANDOM STRING GENERATOR //
-const generateRandomString = () => {
-  const ranNum = Math.floor(Math.random() * (199999999 - 100000000) + 100000000);
-  const toBase36 = ranNum.toString(36);
-  return toBase36;
-};
+// // RANDOM STRING GENERATOR //
+// const generateRandomString = () => {
+//   const ranNum = Math.floor(Math.random() * (199999999 - 100000000) + 100000000);
+//   const toBase36 = ranNum.toString(36);
+//   return toBase36;
+// };
 
-// FIND USER //
-const findUserInfo = (cookieVal, users) => {
-  if (Object.keys(users).includes(cookieVal)) {
-    return users[cookieVal];
-  } else {
-    return undefined;
-  }
-};
+// // FIND USER //
+// const findUserId = (cookieVal, users) => {
+//   if (Object.keys(users).includes(cookieVal)) {
+//     return users[cookieVal];
+//   } else {
+//     return undefined;
+//   }
+// };
 
-// EMAIL LOOKUP //
-const emailLookup = (reqEmail, users, callback) => { // return bool and id in callback
-  for (const id in users) {
-    if (users[id].email === reqEmail) {
-      return callback(true, users[id]);
-    }
-  }
-  return false;
-};
+// // EMAIL LOOKUP //
+// const getUserByEmail = (reqEmail, users, callback) => { // return bool and id in callback
+//   for (const id in users) {
+//     if (users[id].email === reqEmail) {
+//       return callback(true, users[id]);
+//     }
+//   }
+//   return false;
+// };
 
-// PASSWORD CHECKER //
-const passwordChecker = (reqEmail, reqPass, db, callback) => {
-  emailLookup(reqEmail, db, (bool, id) => {
-    if (bool && bcrypt.compareSync(reqPass, id.password)) { // both have matches
-      // console.log('passing here');
-      return callback(true, id.id);
-    } else {
-      return callback(false, null);
-    }
-  });
-};
+// // PASSWORD CHECKER //
+// const passwordChecker = (reqEmail, reqPass, db, callback) => {
+//   getUserByEmail(reqEmail, db, (bool, id) => {
+//     if (bool && bcrypt.compareSync(reqPass, id.password)) { // both have matches
+//       // console.log('passing here');
+//       return callback(true, id.id);
+//     } else {
+//       return callback(false, null);
+//     }
+//   });
+// };
 
-// CREATE URL OBJECT FOR TEMPLATE //
-const urlsForUser = (id) => {
-  let validURLS = {};
-  if (id !== undefined) {
-    for (const shortURL in urlDatabase) {
-      if (urlDatabase[shortURL].userId === id.id) {
-        validURLS[shortURL] = { longURL: urlDatabase[shortURL].longURL };
-      }
-    }
-  }
-  if (Object.keys(validURLS).length === 0) {
-    return undefined;
-  } else {
-    return validURLS;
-  }
-};
+// // CREATE URL OBJECT FOR TEMPLATE //
+// const urlsForUser = (id) => {
+//   let validURLS = {};
+//   if (id !== undefined) {
+//     for (const shortURL in urlDatabase) {
+//       if (urlDatabase[shortURL].userId === id.id) {
+//         validURLS[shortURL] = { longURL: urlDatabase[shortURL].longURL };
+//       }
+//     }
+//   }
+//   if (Object.keys(validURLS).length === 0) {
+//     return undefined;
+//   } else {
+//     return validURLS;
+//   }
+// };
 
-// ROUTING //
+/// ROUTING ///
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -98,8 +99,8 @@ app.get('/urls.json', (req, res) => {
 // URLS //
 app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
   // console.log(req.session.user_id);
-  const userId = findUserInfo(req.session.user_id, users);
-  const templateVars = { urls: urlsForUser(userId), userId: userId };
+  const userId = findUserId(req.session.user_id, users);
+  const templateVars = { urls: urlsForUser(userId, urlDatabase), userId: userId };
   res.render('urls_index', templateVars);
 });
 
@@ -127,7 +128,7 @@ app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
 });
 
 app.get('/urls/new', (req, res) => {
-  const userId = findUserInfo(req.session.user_id, users);
+  const userId = findUserId(req.session.user_id, users);
   if (userId === undefined) {
     res.redirect('/login');
   } else {
@@ -145,7 +146,7 @@ app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
     urls: urlDatabase,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    userId: findUserInfo(req.session.user_id, users)
+    userId: findUserId(req.session.user_id, users)
   };
   res.render('urls_show', templateVars);
 });
@@ -176,7 +177,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { userId: findUserInfo(req.session.user_id, users) };
+  const templateVars = { userId: findUserId(req.session.user_id, users) };
   res.render('urls_login', templateVars);
 });
 
@@ -189,7 +190,7 @@ app.post('/logout', (req, res) => {
 
 // REGISTER //
 app.get('/register', (req, res) => {
-  const templateVars = { userId: findUserInfo(req.session.user_id, users) };
+  const templateVars = { userId: findUserId(req.session.user_id, users) };
   res.render('urls_register', templateVars);
 });
 
@@ -197,7 +198,7 @@ app.post('/register', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
   const hashedPass = bcrypt.hashSync(reqPass, 10);
-  if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail, users, (bool, id) => bool)) {
+  if ((reqEmail === '' || reqPass === '') || getUserByEmail(reqEmail, users, (bool, id) => bool)) {
     res.status(400);
     return res.send('400');
   }
