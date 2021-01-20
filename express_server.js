@@ -47,8 +47,12 @@ app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
   res.render('urls_index', templateVars);
 });
 
-app.post('/urls/:shortURL/delete', (req, res) => { // DELETE LINK FROM DATABASE
-  if (req.session.user_id === urlDatabase[req.params.shortURL].userId) {
+app.delete('/urls/:shortURL', (req, res) => { // DELETE LINK FROM DATABASE
+  if (!urlDatabase[req.params.shortURL]) {
+    const userId = findUserId(req.session.user_id, users);
+    const templateVars = { userId };
+    return res.render('urls_error', templateVars);
+  } else if (req.session.user_id === urlDatabase[req.params.shortURL].userId) {
     delete urlDatabase[req.params.shortURL];
   }
   res.redirect('/urls');
