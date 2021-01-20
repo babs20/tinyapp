@@ -48,7 +48,7 @@ const findUserInfo = (cookieVal) => {
 };
 
 // EMAIL LOOKUP //
-const emailLookup = (reqEmail, callback) => {
+const emailLookup = (reqEmail, db, callback) => {
   for (const id in users) {
     if (users[id].email === reqEmail) {
       return callback(true, users[id]);
@@ -58,8 +58,8 @@ const emailLookup = (reqEmail, callback) => {
 };
 
 // PASSWORD CHECKER //
-const passwordChecker = (reqEmail, reqPass, callback) => {
-  emailLookup(reqEmail, (bool, id) => {
+const passwordChecker = (reqEmail, reqPass, db, callback) => {
+  emailLookup(reqEmail, db, (bool, id) => {
     if (bool && bcrypt.compareSync(reqPass, id.password)) { // both have matches
       // console.log('passing here');
       return callback(true, id.id);
@@ -161,7 +161,7 @@ app.post('/login', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
 
-  passwordChecker(reqEmail, reqPass, (bool, id) => {
+  passwordChecker(reqEmail, reqPass, users, (bool, id) => {
     if (bool) {
       console.log('here');
       req.session.user_id = id;
@@ -197,7 +197,7 @@ app.post('/register', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
   const hashedPass = bcrypt.hashSync(reqPass, 10);
-  if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail, (bool, id) => bool)) {
+  if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail, users, (bool, id) => bool)) {
     res.status(400);
     return res.send('400');
   }
