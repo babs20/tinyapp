@@ -3,6 +3,7 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 // SETTING UP APP
 const app = express();
@@ -19,8 +20,8 @@ const urlDatabase = {
 };
 
 const users = {
-  user1x1gd1:
-    { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
+  // user1x1gd1:
+  //   { id: 'user1x1gd1', email: 'test@gmail.com', password: 'test' }
 };
 
 // RANDOM STRING GENERATOR //
@@ -52,8 +53,8 @@ const emailLookup = (reqEmail, callback) => {
 // PASSWORD CHECKER //
 const passwordChecker = (reqEmail, reqPass, callback) => {
   emailLookup(reqEmail, (bool, id) => {
-    if (bool && id.password === reqPass) { // both have matches
-      console.log('passing here');
+    if (bool && bcrypt.compareSync(reqPass, id.password)) { // both have matches
+      // console.log('passing here');
       return callback(true, id.id);
     } else {
       return callback(false, null);
@@ -183,12 +184,13 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const reqEmail = req.body.email;
   const reqPass = req.body.password;
+  const hashedPass = bcrypt.hashSync(reqPass, 10);
   if ((reqEmail === '' || reqPass === '') || emailLookup(reqEmail, (bool, id) => bool)) {
     res.status(400);
     return res.send('400');
   }
   const ranUserId = `user${generateRandomString()}`;
-  users[ranUserId] = { id: ranUserId, email: reqEmail, password: reqPass };
+  users[ranUserId] = { id: ranUserId, email: reqEmail, password: hashedPass };
   console.log(users);
   res.cookie('user_id', ranUserId);
   res.redirect('/urls');
