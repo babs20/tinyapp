@@ -14,8 +14,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   keys: ['some-value'],
-
-  // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 app.set('view engine', 'ejs');
@@ -33,13 +31,20 @@ const users = {
 };
 
 /// ROUTING ///
-app.get("/", (req, res) => {
-  res.send("Hello!");
+
+// ROOT //
+app.get("/", (req, res) => { // Redirect to URLS or Login depending on user login
+  const userId = findUserId(req.session.user_id, users);
+  if (userId === undefined) {
+    res.redirect('/login');
+  } else {
+    res.redirect('/urls');
+  }
 });
 
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
+// app.get('/urls.json', (req, res) => {
+//   res.json(urlDatabase);
+// });
 
 // URLS //
 app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
@@ -87,19 +92,32 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => { // URL SHOW PAGE
-  const templateVars = {
-    urls: urlDatabase,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    userId: findUserId(req.session.user_id, users)
-  };
-  res.render('urls_show', templateVars);
+  const userId = findUserId(req.session.user_id, users);
+  if (!Object.keys(urlDatabase).includes(req.params.shortURL)) {
+    // res.send(404);
+    const templateVars = { error: '404', userId };
+    return res.render('urls_error', templateVars);
+  } else {
+    const templateVars = {
+      urls: urlDatabase,
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      userId: findUserId(req.session.user_id, users)
+    };
+    res.render('urls_show', templateVars);
+  }
 });
 
 // REDIRECT SHORTEN LINKS //
 app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  res.redirect(urlDatabase[shortURL].longURL);
+  if (!Object.keys(urlDatabase).includes(shortURL)) {
+    res.send(404);
+    const templateVars = { error: '404' };
+    return res.render('urls_error', templateVars);
+  } else {
+    res.redirect(urlDatabase[shortURL].longURL);
+  }
 });
 
 // LOGIN //
