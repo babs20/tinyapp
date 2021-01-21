@@ -32,6 +32,7 @@ const urlDatabase = {
   "b2xabc": {
     longURL: "http://www.lighthouselabs.ca",
     userId: 'DIFFUSER',
+    dateCreated: 1611191758000,
     traffic: 0,
     unique: 0,
     visitLog: [{ timestamp: 1611191758000, visitorId: 'user' }]
@@ -95,6 +96,7 @@ app.post('/urls', (req, res) => { // CREATE NEW SHORT LINK AND ADD TO DATABASE
     userId: req.session.user_id,
     traffic: 0,
     unique: 0,
+    created: Date.now(),
     visitLog: []
   };
   res.redirect(`urls/${shortURL}`);

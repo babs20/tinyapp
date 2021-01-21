@@ -37,7 +37,12 @@ const urlsForUser = (id, urlDatabase) => {
   if (id !== undefined) {
     for (const shortURL in urlDatabase) {
       if (urlDatabase[shortURL].userId === id.id) {
-        validURLS[shortURL] = { longURL: urlDatabase[shortURL].longURL };
+        validURLS[shortURL] = {
+          longURL: urlDatabase[shortURL].longURL,
+          traffic: urlDatabase[shortURL].traffic,
+          unique: urlDatabase[shortURL].unique,
+          created: urlDatabase[shortURL].created,
+        };
       }
     }
   }
