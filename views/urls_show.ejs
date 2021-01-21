@@ -18,9 +18,34 @@
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %>
         </h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>">
+        <p class="card-text">Short URL: <a target="_blank" href="/u/<%= shortURL %>">
             <%= shortURL %>
           </a></p>
+        <p>Amount of Times Visited: <%= urls[shortURL].traffic%>
+        </p>
+        <p>Amount of Unique Visits: <%= urls[shortURL].unique%>
+        </p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Time Accessed</th>
+              <th scope="col">User</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%for (let i=0; i < urls[shortURL].visitLog.length; i++) {%>
+              <tr>
+                <td>
+                  <% const date=new Date (urls[shortURL].visitLog[i].timestamp)%>
+                    <%= date.toLocaleString("en-US", { timeZone: 'America/New_York' });%>
+                </td>
+                <td>
+                  <%= urls[shortURL].visitLog[i].visitorId%>
+                </td>
+              </tr>
+              <%}%>
+          </tbody>
+        </table>
       </div>
       <div class="card-footer text-muted">
         <h2>Edit</h2>

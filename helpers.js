@@ -55,4 +55,13 @@ const generateRandomString = () => {
   return toBase36;
 };
 
-module.exports = { getUserByEmail, findUserId, passwordChecker, urlsForUser, generateRandomString };
+const incrementUniqueViewCookie = (viewCookieExists, idObject) => {
+  if (!viewCookieExists) {
+    idObject.traffic++;
+    idObject.unique++;
+  } else {
+    idObject.traffic++;
+  }
+};
+
+module.exports = { getUserByEmail, findUserId, passwordChecker, urlsForUser, generateRandomString, incrementUniqueViewCookie };
