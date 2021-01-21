@@ -17,6 +17,7 @@ Extra functionality includes: analytics! Track how many times your links have be
 - bcrypt
 - body-parser
 - cookie-session
+- method-override
 
 ## Getting Started
 
