@@ -67,21 +67,23 @@ app.get('/urls', (req, res) => { // CREATE MY URLS PAGE
 });
 
 app.delete('/urls/:shortURL', (req, res) => { // DELETE LINK FROM DATABASE
+  const userId = findUserId(req.session.user_id, users);
+  let templateVars = {};
   if (!urlDatabase[req.params.shortURL]) {
-    const userId = findUserId(req.session.user_id, users);
-    const templateVars = { userId };
+    templateVars = { userId, errMessage: 'Please log in to delete this file.' };
     return res.render('urls_error', templateVars);
   } else if (req.session.user_id === urlDatabase[req.params.shortURL].userId) {
     delete urlDatabase[req.params.shortURL];
   }
-  res.redirect('/urls');
+  templateVars = { userId, errMessage: 'You do not have permission to delete this file' };
+  res.render('urls_error', templateVars);
 });
 
 app.put('/urls/:id', (req, res) => { // UPDATE LINK AFTER EDIT
   const id = Object.keys(req.body)[0];
-  if (!urlDatabase[id]) {
+  if (!urlDatabase[id]) { // Not logged in
     return res.redirect('/login');
-  } else if (req.session.user_id !== urlDatabase[id].userId) {
+  } else if (req.session.user_id !== urlDatabase[id].userId) { // Not the right user
     return res.redirect(`/urls/${id}`);
   } else {
     urlDatabase[id].longURL = req.body[id];
@@ -157,26 +159,26 @@ app.post('/login', (req, res) => {
       req.session.user_id = id;
       return res.redirect('/urls');
     } else {
-      const templateVars = { userId };
+      const templateVars = { userId, errMessage: 'The log in information is incorrect please try again.' };
       return res.render('urls_error', templateVars);
     }
   });
 });
 
 app.get('/login', (req, res) => {
-  // if (!req.session.user_id) {
-  //   return res.redirect('/urls');
-  // }
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
   const templateVars = { userId: findUserId(req.session.user_id, users) };
   res.render('urls_login', templateVars);
 });
 
 // REGISTER //
 app.get('/register', (req, res) => {
-  // if (req.session.user_id) {
-  //   return res.redirect('/urls');
-  // }
-  const templateVars = { userId: findUserId(req.session.user_id, users) };
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
+  const templateVars = { userId: findUserId(req.session.user_id, users), errMessage: '404' };
   res.render('urls_register', templateVars);
 });
 
@@ -185,7 +187,10 @@ app.post('/register', (req, res) => {
   const reqPass = req.body.password;
   const hashedPass = bcrypt.hashSync(reqPass, 10);
   if ((reqEmail === '' || reqPass === '') || getUserByEmail(reqEmail, users, (bool) => bool)) {
-    const templateVars = { userId: findUserId(req.session.user_id, users) };
+    const templateVars = {
+      userId: findUserId(req.session.user_id, users),
+      errMessage: 'That email is already in use. Try to log In.'
+    };
     return res.render('urls_error', templateVars);
   }
   const ranUserId = `user${generateRandomString()}`;

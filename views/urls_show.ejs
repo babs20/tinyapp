@@ -12,63 +12,66 @@
   <header>
     <%- include('partials/_header') %>
   </header>
-  <% if(userId !==undefined && urls[shortURL].userId===userId.id) { %>
-    <div class="card text-center justify-content-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %>
-        </h5>
-        <p class="card-text">Short URL: <a target="_blank" href="/u/<%= shortURL %>">
-            <%= shortURL %>
-          </a></p>
-        <p>Amount of Times Visited: <%= urls[shortURL].traffic%>
-        </p>
-        <p>Amount of Unique Visits: <%= urls[shortURL].unique%>
-        </p>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Time Accessed</th>
-              <th scope="col">User</th>
-            </tr>
-          </thead>
-          <tbody>
-            <%for (let i=0; i < urls[shortURL].visitLog.length; i++) {%>
-              <tr>
-                <td>
-                  <% const date=new Date (urls[shortURL].visitLog[i].timestamp)%>
-                    <%= date.toLocaleString("en-US", { timeZone: 'America/New_York' });%>
-                </td>
-                <td>
-                  <%= urls[shortURL].visitLog[i].visitorId%>
-                </td>
-              </tr>
-              <%}%>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer text-muted">
-        <h2>Edit</h2>
-        <form class="form-inline" action="/urls/:newURL?_method=PUT" method="POST" style="justify-content: center;">
-          <label for="newURL">New URL:</label>
-          <input class="form-control" type="text" name="<%= shortURL %>" placeholder="<%= longURL %>"
-            style="width: 300px; margin: 1em; align-self: center;">
-          <button type="submit" class="btn btn-primary">Update</button>
-        </form>
-      </div>
+  <%if (!linkExists) {%>
+    <div class="d-flex justify-content-center alert alert-danger" role="alert" style='margin: 2em;'>
+      <h4 style="text-align: center;">The link you tried to access does not exist.</h4>
     </div>
-    <% } else if (!linkExists){%>
-      <div class="d-flex justify-content-center alert alert-danger" role="alert" style='margin: 2em;'>
-        <h4 style="text-align: center;">The link you tried to access does not exist.</h4>
+    <%} else if(userId !==undefined && urls[shortURL].userId===userId.id) { %>
+      <div class="card text-center justify-content-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <h5 class="card-title">TinyURL for: <%= longURL %>
+          </h5>
+          <p class="card-text">Short URL: <a target="_blank" href="/u/<%= shortURL %>">
+              <%= shortURL %>
+            </a></p>
+          <p>Date Created: <% const date=new Date (urls[shortURL].created)%>
+              <%= date.toLocaleString("en-US", { timeZone: 'America/New_York' });%>
+          </p>
+          <p>Amount of Times Visited: <%= urls[shortURL].traffic%>
+          </p>
+          <p>Amount of Unique Visits: <%= urls[shortURL].unique%>
+          </p>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Time Accessed</th>
+                <th scope="col">User</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%for (let i=0; i < urls[shortURL].visitLog.length; i++) {%>
+                <tr>
+                  <td>
+                    <% const date=new Date (urls[shortURL].visitLog[i].timestamp)%>
+                      <%= date.toLocaleString("en-US", { timeZone: 'America/New_York' });%>
+                  </td>
+                  <td>
+                    <%= urls[shortURL].visitLog[i].visitorId%>
+                  </td>
+                </tr>
+                <%}%>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer text-muted">
+          <h2>Edit</h2>
+          <form class="form-inline" action="/urls/:newURL?_method=PUT" method="POST" style="justify-content: center;">
+            <label for="newURL">New URL:</label>
+            <input class="form-control" type="text" name="<%= shortURL %>" placeholder="<%= longURL %>"
+              style="width: 300px; margin: 1em; align-self: center;">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </form>
+        </div>
       </div>
       <% } else if (userId===undefined) {%>
         <div class="d-flex justify-content-center alert alert-info" role="alert" style='margin: 2em;'>
-          <h4 style="text-align: center;">Please <a href="/login" class="alert-link">Log In </a>or <a href="/register"
-              class="alert-link">Register</a>!</h4>
+          <h4 style="text-align: center;">Error: 401 -Please <a href="/login" class="alert-link">Log In </a>or <a
+              href="/register" class="alert-link">Register</a>!</h4>
         </div>
         <% } else {%>
           <div class="d-flex justify-content-center alert alert-danger" role="alert" style='margin: 2em;'>
-            <h4 style="text-align: center;">You do not have acces to this link</h4>
+            <h4 style="text-align: center;"> Error: 403 - You do not have acces to this link</h4>
           </div>
           <% } %>
             <!-- Bootstrap JS -->
